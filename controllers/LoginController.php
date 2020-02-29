@@ -10,34 +10,41 @@ class LoginController extends BaseController
     {
         $error = '';
 
-        if (isset($_SESSION['is_auth'])) {
+        if ($this->request->get('SESSION', 'is_auth')) {
             unset($_SESSION['is_auth']);
         }
-        if (isset($_COOKIE['login'])) {
+        if ($this->request->get('COOKIE', 'login')) {
             setcookie('login', null, 0, '/');
         }
-        if (isset($_COOKIE['password'])) {
+        if ($this->request->get('COOKIE', 'password')) {
             setcookie('password', null, 0, '/');
         }
 
-        if (isset($_SESSION['return_url'])) {
+        if ($this->request->get('COOKIE', 'return_url')) {
             $hasReturnUrl = true;
             $error = 'Нет доступа';
         } else {
             $hasReturnUrl = false;
         }
 
-        if (count($_POST) > 0) { // POST
-            if ($_POST['login'] == 'root' && $_POST['password'] == 'toor') {
+        if ($this->request->isPost()) {
+            if ($this->request->get('POST', 'login') == 'root' && $this->request->get('POST', 'password') == 'toor') {
                 $_SESSION['is_auth'] = true;
 
-                if (isset($_POST['remember'])) {
-                    setcookie('login', $_POST['login'], time() + 3600 * 24 * 7, '/');
-                    setcookie('password', AuthModel::generateHash($_POST['password']), time() + 3600 * 24 * 7, '/');
+                if ($this->request->get('POST', 'remember')) {
+                    setcookie(
+                        'login',
+                        $this->request->get('POST', 'login'),
+                        time() + 3600 * 24 * 7, '/'
+                    );
+                    setcookie('password',
+                        AuthModel::generateHash($this->request->get('POST', 'password')),
+                        time() + 3600 * 24 * 7, '/'
+                    );
                 }
 
                 if ($hasReturnUrl) {
-                    $return_url = $_SESSION['return_url'];
+                    $return_url = $this->request->get('SESSION', 'return_url');
                     unset($_SESSION['return_url']);
                     header('Location: ' . ROOT . $return_url);
                     exit();

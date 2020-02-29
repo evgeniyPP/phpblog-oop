@@ -2,11 +2,20 @@
 
 namespace controllers;
 
+use core\Request;
+use models\AuthModel;
+
 abstract class BaseController
 {
+    protected $request;
     protected $title;
     protected $stylefile;
     protected $content;
+
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
 
     protected function build(string $template, array $props = [])
     {
@@ -26,5 +35,14 @@ abstract class BaseController
                 'content' => $this->content,
             ]
         );
+    }
+
+    protected function secureRoute(string $returnUrl, string $rerouteUrl = 'login')
+    {
+        if (!AuthModel::checkAuth()) {
+            $_SESSION['return_url'] = $returnUrl;
+            header('Location: ' . ROOT . $rerouteUrl);
+            exit();
+        }
     }
 }

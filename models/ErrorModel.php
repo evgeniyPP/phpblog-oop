@@ -11,4 +11,11 @@ class ErrorModel
             throw new \Exception("Database Error: $error[2]");
         }
     }
+
+    public static function error404()
+    {
+        header("HTTP/1.1 404 Not Found");
+        header('Location: ' . ROOT . "404");
+        exit();
+    }
 }

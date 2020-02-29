@@ -4,6 +4,7 @@ namespace controllers;
 
 use core\DB;
 use models\AuthModel;
+use models\ErrorModel;
 use models\PostModel;
 use models\ValidateModel;
 
@@ -11,7 +12,7 @@ class PostController extends BaseController
 {
     public function index()
     {
-        $mPost = new PostModel(DB::connect());
+        $mPost = new PostModel(DB::getDBInstance());
         $is_auth = AuthModel::checkAuth();
         $log_btn = !$is_auth ? 'Войти' : 'Выйти';
         $posts = $mPost->getAll();
@@ -28,14 +29,15 @@ class PostController extends BaseController
         );
     }
 
-    public function single(int $id)
+    public function single()
     {
-        $mPost = new PostModel(DB::connect());
+        $id = $this->request->get('GET', 'id');
+        $mPost = new PostModel(DB::getDBInstance());
         $is_auth = AuthModel::checkAuth();
         $post = $mPost->getById($id);
 
         if (!$post) {
-            header('Location: ' . ROOT . "404");
+            ErrorModel::error404();
         }
 
         $this->title = $post['title'] . ' | Блог на PHP';
@@ -52,24 +54,20 @@ class PostController extends BaseController
 
     public function add()
     {
-        if (!AuthModel::checkAuth()) {
-            $_SESSION['return_url'] = "post/add";
-            header('Location: ' . ROOT . "login");
-            exit();
-        }
+        $this->secureRoute("post/add");
 
-        if (!count($_POST) > 0) { // GET
+        if ($this->request->isGet()) {
             $title = '';
             $content = '';
             $error = '';
-        } else { // POST
-            $title = htmlspecialchars(trim($_POST['title']));
-            $content = htmlspecialchars(trim($_POST['content']));
+        } else {
+            $title = htmlspecialchars(trim($this->request->get('POST', 'title')));
+            $content = htmlspecialchars(trim($this->request->get('POST', 'content')));
             $error = ''; # TODO error handling
 
             ValidateModel::validatePost($title, $content);
 
-            $mPost = new PostModel(DB::connect());
+            $mPost = new PostModel(DB::getDBInstance());
             $id = $mPost->add($title, $content);
 
             header('Location: ' . ROOT . "post/$id");
@@ -88,28 +86,25 @@ class PostController extends BaseController
         );
     }
 
-    public function edit($id)
+    public function edit()
     {
-        if (!AuthModel::checkAuth()) {
-            $_SESSION['return_url'] = "post/edit/$id";
-            header('Location: ' . ROOT . "login");
-            exit();
-        }
+        $id = $this->request->get('GET', 'id');
+        $this->secureRoute("post/edit/$id");
 
         ValidateModel::validateId($id);
-        $mPost = new PostModel(DB::connect());
+        $mPost = new PostModel(DB::getDBInstance());
 
-        if (!count($_POST) > 0) { // GET
+        if ($this->request->isGet()) {
             $post = $mPost->getById($id);
 
             if (!$post) {
-                header('Location: ' . ROOT . "404");
+                ErrorModel::error404();
             }
 
             $error = '';
-        } else { // POST
-            $title = htmlspecialchars(trim($_POST['title']));
-            $content = htmlspecialchars(trim($_POST['content']));
+        } else {
+            $title = htmlspecialchars(trim($this->request->get('POST', 'title')));
+            $content = htmlspecialchars(trim($this->request->get('POST', 'content')));
             $error = ''; # TODO error handling
 
             ValidateModel::validatePost($title, $content);

@@ -2,7 +2,9 @@
 
 use controllers\PostController;
 use core\DB;
+use models\ErrorModel;
 use models\PostModel;
+use models\RouterModel;
 use models\UserModel;
 
 function __autoload($classname)
@@ -13,53 +15,28 @@ function __autoload($classname)
 define('ROOT', '/blog-oop/');
 session_start();
 
-$uri = $_SERVER["REQUEST_URI"];
-$uriParts = explode("/", $uri);
-unset($uriParts[0]);
-unset($uriParts[1]);
-$uriParts = array_values($uriParts);
+$mRouter = new RouterModel($_SERVER["REQUEST_URI"]);
+$controller = $mRouter->getController(
+    [
+        'post' => 'Post',
+        'user' => 'User',
+        'login' => 'Login',
+    ]
+);
+$action = $mRouter->getAction();
+$id = $mRouter->getId();
 
-// Controller
-$controller = isset($uriParts[0]) && $uriParts[0] !== '' ? $uriParts[0] : 'post';
-
-switch ($controller) {
-    case 'post':
-        $controller = "Post";
-        break;
-    case 'user':
-        $controller = "User";
-        break;
-    case 'login':
-        $controller = "Login";
-        break;
-    case '404':
-        $controller = "Error404";
-        break;
-    default:
-        header('Location: ' . ROOT . "404");
-        break;
+if ($id) {
+    $_GET['id'] = $id;
 }
 
-// Action
-if (isset($uriParts[1]) && $uriParts[1] !== '') {
-    $action = is_numeric($uriParts[1]) ? 'single' : $uriParts[1];
-} else {
-    $action = 'index';
-}
+$request = new core\Request($_GET, $_POST, $_SERVER, $_COOKIE, $_FILES, $_SESSION);
 
-// Id
-if (isset($uriParts[1]) && is_numeric($uriParts[1])) {
-    $id = $uriParts[1];
-} else {
-    $id = isset($uriParts[2]) && is_numeric($uriParts[2]) ? $uriParts[2] : null;
-}
-
-$controller = sprintf('controllers\%sController', $controller);
-$controller = new $controller();
+$controller = new $controller($request);
 
 if (!method_exists($controller, $action)) {
-    header('Location: ' . ROOT . "404");
+    ErrorModel::error404();
 }
 
-$controller->$action($id);
+$controller->$action();
 $controller->render();

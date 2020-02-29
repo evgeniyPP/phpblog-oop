@@ -2,6 +2,8 @@
 
 namespace models;
 
+use controllers\LoginController;
+
 class AuthModel
 {
     public static function generateHash($pass)

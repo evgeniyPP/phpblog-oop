@@ -6,9 +6,9 @@ class Error404Controller extends BaseController
 {
     public function index()
     {
-        if (isset($_SESSION['error'])) {
-            $error = htmlspecialchars($_SESSION['error']);
-            unset($_SESSION['error']);
+        if ($this->request->get('SESSION', 'error')) {
+            $error = htmlspecialchars($this->request->get('SESSION', 'error'));
+            $this->request->remove('SESSION', 'error');
         } else {
             $error = null;
         }
