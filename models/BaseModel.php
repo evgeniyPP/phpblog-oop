@@ -27,11 +27,8 @@ abstract class BaseModel
         ValidateModel::validateId($id);
         return $this->db->selectOne(
             $this->table,
-            [
-                'column' => $this->key,
-                'key' => 'id',
-                'value' => $id,
-            ]
+            "$this->key = :id",
+            ['id' => $id]
         );
     }
 
@@ -40,11 +37,8 @@ abstract class BaseModel
         ValidateModel::validateId($id);
         return $this->db->delete(
             $this->table,
-            [
-                'column' => $this->key,
-                'key' => 'id',
-                'value' => $id,
-            ]
+            "$this->key = :id",
+            ['id' => $id]
         );
     }
 
@@ -58,11 +52,8 @@ abstract class BaseModel
         return $this->db->update(
             $this->table,
             $props,
-            [
-                'column' => $this->key,
-                'key' => 'id',
-                'value' => $id,
-            ]
+            "$this->key = :id",
+            ['id' => $id]
         );
     }
 }

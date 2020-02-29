@@ -23,27 +23,21 @@ class DBDriver
         return $stmt->fetchAll();
     }
 
-    public function selectOne(string $table, array $where)
+    public function selectOne(string $table, string $where, array $where_props)
     {
-        $whereMask = $this->getWhereMask($where);
-        $sql = sprintf('SELECT * FROM %s WHERE %s', $table, $whereMask);
+        $sql = sprintf('SELECT * FROM %s WHERE %s', $table, $where);
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            $where['key'] => $where['value'],
-        ]);
+        $stmt->execute($where_props);
         ErrorModel::checkDBError($stmt);
 
         return $stmt->fetch();
     }
 
-    public function delete(string $table, array $where)
+    public function delete(string $table, string $where, array $where_props)
     {
-        $whereMask = $this->getWhereMask($where);
-        $sql = sprintf('DELETE FROM %s WHERE %s', $table, $whereMask);
+        $sql = sprintf('DELETE FROM %s WHERE %s', $table, $where);
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            $where['key'] => $where['value'],
-        ]);
+        $stmt->execute($where_props);
         ErrorModel::checkDBError($stmt);
 
         return true;
@@ -62,7 +56,7 @@ class DBDriver
         return $this->pdo->lastInsertId();
     }
 
-    public function update(string $table, array $props, array $where)
+    public function update(string $table, array $props, string $where, array $where_props)
     {
         $params = [];
         foreach ($props as $key => $value) {
@@ -70,20 +64,13 @@ class DBDriver
         }
         $params = implode(', ', $params);
 
-        $whereMask = $this->getWhereMask($where);
-
-        $sql = sprintf('UPDATE %s SET %s WHERE %s', $table, $params, $whereMask);
-        $props[$where['key']] = $where['value'];
+        $sql = sprintf('UPDATE %s SET %s WHERE %s', $table, $params, $where);
+        $props = array_merge($props, $where_props);
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($props);
         ErrorModel::checkDBError($stmt);
 
         return $this->pdo->lastInsertId();
-    }
-
-    private function getWhereMask(array $where)
-    {
-        return sprintf('%s=:%s', $where['column'], $where['key']);
     }
 }
