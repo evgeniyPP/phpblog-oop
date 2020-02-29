@@ -1,0 +1,118 @@
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.125rem;
+}
+
+form {
+  width: 50%;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+form label {
+  margin-bottom: 0.5rem;
+}
+
+form input {
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  font-weight: bold;
+}
+
+.form__btns button {
+  margin: 0;
+  display: inline-block;
+  cursor: pointer;
+  outline: none;
+  border: 0;
+  vertical-align: middle;
+  text-decoration: none;
+  font-size: inherit;
+  font-family: inherit;
+  text-transform: uppercase;
+  padding: 0.5rem 1rem;
+  transition: all 0.4s;
+  font-weight: bold;
+}
+
+.form__btns button:hover,
+.form__btns button:focus,
+.form__btns button:active {
+  background: #3c3c3c;
+  color: #fff;
+  transition: all 0.4s;
+}
+
+.btns__toindex {
+  margin-left: 1rem;
+}
+
+.error {
+  font-size: 1.5rem;
+  color: red;
+}
+
+/* checkbox */
+.remember {
+  display: block;
+  position: relative;
+  padding-left: 1.75rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  font-size: inherit;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.remember input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.remember span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 1.125rem;
+  width: 1.125rem;
+  background-color: #eee;
+}
+
+.remember:hover input ~ span {
+  background-color: #ccc;
+}
+
+.remember input:checked ~ span {
+  background-color: #2196f3;
+}
+
+.remember span:after {
+  content: '';
+  position: absolute;
+  display: none;
+}
+
+.remember input:checked ~ span:after {
+  display: block;
+}
+
+.remember span:after {
+  top: 1px;
+  left: 5px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
