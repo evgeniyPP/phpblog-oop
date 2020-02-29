@@ -6,7 +6,7 @@ class UserModel extends BaseModel
 {
     public function __construct(\PDO $db)
     {
-        parent::__construct($db, 'users');
+        parent::__construct($db, 'users', 'id_user');
     }
 
     public function add(string $name)

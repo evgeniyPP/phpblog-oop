@@ -41,8 +41,13 @@ abstract class BaseController
     {
         if (!AuthModel::checkAuth()) {
             $_SESSION['return_url'] = $returnUrl;
-            header('Location: ' . ROOT . $rerouteUrl);
-            exit();
+            $this->redirect($rerouteUrl);
         }
+    }
+
+    protected function redirect(string $uri = '')
+    {
+        header('Location: ' . ROOT . $uri);
+        exit();
     }
 }

@@ -3,6 +3,7 @@
 namespace controllers;
 
 use core\DB;
+use core\DBDriver;
 use models\AuthModel;
 use models\ErrorModel;
 use models\PostModel;
@@ -12,7 +13,7 @@ class PostController extends BaseController
 {
     public function index()
     {
-        $mPost = new PostModel(DB::getDBInstance());
+        $mPost = new PostModel(new DBDriver(DB::getDBInstance()));
         $is_auth = AuthModel::checkAuth();
         $log_btn = !$is_auth ? 'Войти' : 'Выйти';
         $posts = $mPost->getAll();
@@ -32,7 +33,7 @@ class PostController extends BaseController
     public function single()
     {
         $id = $this->request->get('GET', 'id');
-        $mPost = new PostModel(DB::getDBInstance());
+        $mPost = new PostModel(new DBDriver(DB::getDBInstance()));
         $is_auth = AuthModel::checkAuth();
         $post = $mPost->getById($id);
 
@@ -56,22 +57,21 @@ class PostController extends BaseController
     {
         $this->secureRoute("post/add");
 
-        if ($this->request->isGet()) {
-            $title = '';
-            $content = '';
-            $error = '';
-        } else {
+        if ($this->request->isPost()) {
             $title = htmlspecialchars(trim($this->request->get('POST', 'title')));
             $content = htmlspecialchars(trim($this->request->get('POST', 'content')));
-            $error = ''; # TODO error handling
 
             ValidateModel::validatePost($title, $content);
 
-            $mPost = new PostModel(DB::getDBInstance());
-            $id = $mPost->add($title, $content);
+            $mPost = new PostModel(new DBDriver(DB::getDBInstance()));
+            $id = $mPost->add(
+                [
+                    'title' => $title,
+                    'content' => $content,
+                ]
+            );
 
-            header('Location: ' . ROOT . "post/$id");
-            exit();
+            $this->redirect("post/$id");
         }
 
         $this->title = 'Добавить пост | Блог на PHP';
@@ -79,9 +79,9 @@ class PostController extends BaseController
         $this->content = $this->build(
             __DIR__ . '/../views/add.html.php',
             [
-                'error' => $error,
-                'title' => $title,
-                'content' => $content,
+                'error' => $error ?? null,
+                'title' => $title ?? '',
+                'content' => $content ?? '',
             ]
         );
     }
@@ -92,27 +92,27 @@ class PostController extends BaseController
         $this->secureRoute("post/edit/$id");
 
         ValidateModel::validateId($id);
-        $mPost = new PostModel(DB::getDBInstance());
+        $mPost = new PostModel(new DBDriver(DB::getDBInstance()));
 
         if ($this->request->isGet()) {
             $post = $mPost->getById($id);
-
             if (!$post) {
                 ErrorModel::error404();
             }
-
-            $error = '';
         } else {
             $title = htmlspecialchars(trim($this->request->get('POST', 'title')));
             $content = htmlspecialchars(trim($this->request->get('POST', 'content')));
-            $error = ''; # TODO error handling
 
             ValidateModel::validatePost($title, $content);
 
-            $mPost->edit($title, $content, $id);
-            header('Location: ' . ROOT . "post/$id");
-            exit();
-
+            $mPost->editById(
+                [
+                    'title' => $title,
+                    'content' => $content,
+                ],
+                $id
+            );
+            $this->redirect("post/$id");
         }
 
         $this->title = 'Редактировать пост | Блог на PHP';
@@ -121,7 +121,7 @@ class PostController extends BaseController
             __DIR__ . '/../views/edit.html.php',
             [
                 'id' => $id,
-                'error' => $error,
+                'error' => $error ?? '',
                 'title' => $post['title'] ?? $title,
                 'content' => $post['content'] ?? $content,
             ]

@@ -2,49 +2,67 @@
 
 namespace models;
 
+use core\DBDriver;
+
 abstract class BaseModel
 {
     protected $db;
     protected $table;
+    protected $key;
 
-    public function __construct(\PDO $db, string $table)
+    public function __construct(DBDriver $db, string $table, string $key)
     {
         $this->db = $db;
         $this->table = $table;
+        $this->key = $key;
     }
 
     public function getAll()
     {
-        $sql = "SELECT * FROM $this->table ORDER BY dt DESC";
-        $stmt = $this->db->query($sql);
-        ErrorModel::checkDBError($stmt);
-
-        return $stmt->fetchAll();
+        return $this->db->selectAll($this->table);
     }
 
     public function getById(int $id)
     {
         ValidateModel::validateId($id);
-        $sql = "SELECT * FROM $this->table WHERE id_post=:id";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([
-            'id' => $id,
-        ]);
-        ErrorModel::checkDBError($stmt);
-
-        return $stmt->fetch();
+        return $this->db->selectOne(
+            $this->table,
+            [
+                'column' => $this->key,
+                'key' => 'id',
+                'value' => $id,
+            ]
+        );
     }
 
     public function deleteById(int $id)
     {
         ValidateModel::validateId($id);
-        $sql = "DELETE FROM $this->table WHERE id_post=:id";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([
-            'id' => $id,
-        ]);
-        ErrorModel::checkDBError($stmt);
+        return $this->db->delete(
+            $this->table,
+            [
+                'column' => $this->key,
+                'key' => 'id',
+                'value' => $id,
+            ]
+        );
+    }
 
-        return true;
+    public function add(array $props)
+    {
+        return $this->db->insert($this->table, $props);
+    }
+
+    public function editById(array $props, int $id)
+    {
+        return $this->db->update(
+            $this->table,
+            $props,
+            [
+                'column' => $this->key,
+                'key' => 'id',
+                'value' => $id,
+            ]
+        );
     }
 }

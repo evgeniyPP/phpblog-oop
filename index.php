@@ -1,7 +1,5 @@
 <?php
 
-use controllers\PostController;
-use core\DB;
 use models\ErrorModel;
 use models\PostModel;
 use models\RouterModel;
@@ -12,7 +10,7 @@ function __autoload($classname)
     include_once __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $classname) . '.php';
 }
 
-define('ROOT', '/blog-oop/');
+const ROOT = '/blog-oop/';
 session_start();
 
 $mRouter = new RouterModel($_SERVER["REQUEST_URI"]);

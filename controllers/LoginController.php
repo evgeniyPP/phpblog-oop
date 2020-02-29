@@ -46,11 +46,9 @@ class LoginController extends BaseController
                 if ($hasReturnUrl) {
                     $return_url = $this->request->get('SESSION', 'return_url');
                     unset($_SESSION['return_url']);
-                    header('Location: ' . ROOT . $return_url);
-                    exit();
+                    $this->redirect($return_url);
                 } else {
-                    header('Location: ' . ROOT);
-                    exit();
+                    $this->redirect();
                 }
             } else {
                 $error = "Неверные данные";
