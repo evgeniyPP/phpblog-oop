@@ -1,0 +1,9 @@
+$schema = [
+    <name> => [
+        'required' => <bool>,
+        'nullable' => <bool>,
+        'type' => Validator::INTEGER || Validator::STRING || Validator::DATE,
+        'minLength' => <int>,
+        'maxLength' => <int>
+    ]
+];
