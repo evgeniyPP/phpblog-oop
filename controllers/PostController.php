@@ -4,16 +4,16 @@ namespace controllers;
 
 use core\DB;
 use core\DBDriver;
+use core\Validator;
 use models\AuthModel;
 use models\ErrorModel;
 use models\PostModel;
-use models\ValidateModel;
 
 class PostController extends BaseController
 {
     public function index()
     {
-        $mPost = new PostModel(new DBDriver(DB::getDBInstance()));
+        $mPost = new PostModel(new DBDriver(DB::getDBInstance()), new Validator());
         $is_auth = AuthModel::checkAuth();
         $log_btn = !$is_auth ? 'Войти' : 'Выйти';
         $posts = $mPost->getAll();
@@ -33,7 +33,7 @@ class PostController extends BaseController
     public function single()
     {
         $id = $this->request->get('GET', 'id');
-        $mPost = new PostModel(new DBDriver(DB::getDBInstance()));
+        $mPost = new PostModel(new DBDriver(DB::getDBInstance()), new Validator());
         $is_auth = AuthModel::checkAuth();
         $post = $mPost->getById($id);
 
@@ -58,12 +58,10 @@ class PostController extends BaseController
         $this->secureRoute("post/add");
 
         if ($this->request->isPost()) {
-            $title = htmlspecialchars(trim($this->request->get('POST', 'title')));
-            $content = htmlspecialchars(trim($this->request->get('POST', 'content')));
+            $title = $this->request->get('POST', 'title');
+            $content = $this->request->get('POST', 'content');
 
-            ValidateModel::validatePost($title, $content);
-
-            $mPost = new PostModel(new DBDriver(DB::getDBInstance()));
+            $mPost = new PostModel(new DBDriver(DB::getDBInstance()), new Validator());
             $id = $mPost->add(
                 [
                     'title' => $title,
@@ -91,8 +89,7 @@ class PostController extends BaseController
         $id = $this->request->get('GET', 'id');
         $this->secureRoute("post/edit/$id");
 
-        ValidateModel::validateId($id);
-        $mPost = new PostModel(new DBDriver(DB::getDBInstance()));
+        $mPost = new PostModel(new DBDriver(DB::getDBInstance()), new Validator());
 
         if ($this->request->isGet()) {
             $post = $mPost->getById($id);
@@ -100,10 +97,8 @@ class PostController extends BaseController
                 ErrorModel::error404();
             }
         } else {
-            $title = htmlspecialchars(trim($this->request->get('POST', 'title')));
-            $content = htmlspecialchars(trim($this->request->get('POST', 'content')));
-
-            ValidateModel::validatePost($title, $content);
+            $title = $this->request->get('POST', 'title');
+            $content = $this->request->get('POST', 'content');
 
             $mPost->editById(
                 [

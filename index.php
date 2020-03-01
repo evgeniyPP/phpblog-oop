@@ -1,9 +1,7 @@
 <?php
 
 use models\ErrorModel;
-use models\PostModel;
 use models\RouterModel;
-use models\UserModel;
 
 function __autoload($classname)
 {
