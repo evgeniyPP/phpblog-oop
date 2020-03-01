@@ -2,12 +2,12 @@
 
 namespace models;
 
+use core\Exception\Error404Exception;
+
 class RouterModel
 {
-    const ERROR_404 = '404';
-    const ERROR_404_CONTROLLER = 'Error404';
-    const BASE_ACTION = 'index';
     const SINGLE_ACTION = 'single';
+
     private $uriParts;
 
     public function __construct(string $uri)
@@ -26,12 +26,8 @@ class RouterModel
         $uriPart = isset($this->uriParts[0]) && $this->uriParts[0] !== '' ? $this->uriParts[0] : $defValue;
         if ($controllers[$uriPart]) {
             $controller = $controllers[$uriPart];
-        } elseif ($uriPart === self::ERROR_404) {
-            header("HTTP/1.1 404 Not Found");
-            $controller = self::ERROR_404_CONTROLLER;
         } else {
-            header('Location: ' . ROOT . "404");
-            exit();
+            throw new Error404Exception();
         }
         $controller = sprintf('controllers\%sController', $controller);
         return $controller;
@@ -42,7 +38,7 @@ class RouterModel
         if (isset($this->uriParts[1]) && $this->uriParts[1] !== '') {
             $action = is_numeric($this->uriParts[1]) ? self::SINGLE_ACTION : $this->uriParts[1];
         } else {
-            $action = self::BASE_ACTION;
+            $action = BASE_ACTION;
         }
         return $action;
     }

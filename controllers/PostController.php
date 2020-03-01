@@ -4,9 +4,10 @@ namespace controllers;
 
 use core\DB;
 use core\DBDriver;
+use core\Exception\Error404Exception;
+use core\Exception\ValidatedDataException;
 use core\Validator;
 use models\AuthModel;
-use models\ErrorModel;
 use models\PostModel;
 
 class PostController extends BaseController
@@ -38,7 +39,7 @@ class PostController extends BaseController
         $post = $mPost->getById($id);
 
         if (!$post) {
-            ErrorModel::error404();
+            throw new Error404Exception();
         }
 
         $this->title = $post['title'] . ' | Блог на PHP';
@@ -62,14 +63,20 @@ class PostController extends BaseController
             $content = $this->request->get('POST', 'content');
 
             $mPost = new PostModel(new DBDriver(DB::getDBInstance()), new Validator());
-            $id = $mPost->add(
-                [
-                    'title' => $title,
-                    'content' => $content,
-                ]
-            );
 
-            $this->redirect("post/$id");
+            try {
+                $id = $mPost->add(
+                    [
+                        'title' => $title,
+                        'content' => $content,
+                    ]
+                );
+                $this->redirect("post/$id");
+            } catch (ValidatedDataException $e) {
+                $errors = $e->getErrors();
+                $title_errors = $errors['title'] ?? null;
+                $content_errors = $errors['content'] ?? null;
+            }
         }
 
         $this->title = 'Добавить пост | Блог на PHP';
@@ -77,7 +84,9 @@ class PostController extends BaseController
         $this->content = $this->build(
             __DIR__ . '/../views/add.html.php',
             [
-                'error' => $error ?? null,
+                'is_error' => boolval($errors) ?? false,
+                'title_errors' => $title_errors ?? null,
+                'content_errors' => $content_errors ?? null,
                 'title' => $title ?? '',
                 'content' => $content ?? '',
             ]
@@ -94,7 +103,7 @@ class PostController extends BaseController
         if ($this->request->isGet()) {
             $post = $mPost->getById($id);
             if (!$post) {
-                ErrorModel::error404();
+                throw new Error404Exception();
             }
         } else {
             $title = $this->request->get('POST', 'title');

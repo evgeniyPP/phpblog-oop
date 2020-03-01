@@ -2,6 +2,7 @@
 
 namespace core;
 
+use core\Exception\DBException;
 use models\ErrorModel;
 
 class DBDriver
@@ -18,7 +19,7 @@ class DBDriver
         $sql = "SELECT * FROM {$table} ORDER BY dt DESC";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
-        ErrorModel::checkDBError($stmt);
+        $this->checkDBError($stmt);
 
         return $stmt->fetchAll();
     }
@@ -28,7 +29,7 @@ class DBDriver
         $sql = sprintf('SELECT * FROM %s WHERE %s', $table, $where);
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($where_props);
-        ErrorModel::checkDBError($stmt);
+        $this->checkDBError($stmt);
 
         return $stmt->fetch();
     }
@@ -38,7 +39,7 @@ class DBDriver
         $sql = sprintf('DELETE FROM %s WHERE %s', $table, $where);
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($where_props);
-        ErrorModel::checkDBError($stmt);
+        $this->checkDBError($stmt);
 
         return true;
     }
@@ -51,7 +52,7 @@ class DBDriver
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($props);
-        ErrorModel::checkDBError($stmt);
+        $this->checkDBError($stmt);
 
         return $this->pdo->lastInsertId();
     }
@@ -69,8 +70,16 @@ class DBDriver
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($props);
-        ErrorModel::checkDBError($stmt);
+        $this->checkDBError($stmt);
 
         return $this->pdo->lastInsertId();
+    }
+
+    private function checkDBError($stmt)
+    {
+        $error = $stmt->errorInfo();
+        if ($error[0] != \PDO::ERR_NONE) {
+            throw new DBException("Database Error: $error[2]");
+        }
     }
 }

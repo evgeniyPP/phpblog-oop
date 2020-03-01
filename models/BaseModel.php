@@ -3,6 +3,7 @@
 namespace models;
 
 use core\DBDriver;
+use core\Exception\ValidatedDataException;
 use core\Validator;
 
 abstract class BaseModel
@@ -48,9 +49,9 @@ abstract class BaseModel
         $this->validator->execute($props);
 
         if (!$this->validator->success) {
-            var_dump($this->validator->errors);
-            throw new \Exception('Errors in the validation process'); # TODO error handling
+            throw new ValidatedDataException($this->validator->errors);
         }
+
         $props = $this->validator->clean;
 
         return $this->db->insert($this->table, $props);
@@ -63,8 +64,9 @@ abstract class BaseModel
         );
 
         if (!$this->validator->success) {
-            throw new \Exception($this->validator->errors); # TODO error handling
+            throw new ValidatedDataException($this->validator->errors);
         }
+
         $props = array_filter(
             $this->validator->clean,
             function ($item) use ($id) {

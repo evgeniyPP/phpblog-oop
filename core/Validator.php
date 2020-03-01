@@ -2,6 +2,8 @@
 
 namespace core;
 
+use core\Exception\ValidatorException;
+
 class Validator
 {
     const STRING = 'string';
@@ -23,14 +25,14 @@ class Validator
     public function execute(array $fields)
     {
         if (!$this->rules) {
-            throw new \Exception('Правила не определены. Сначала вызовите setRules()');
+            throw new ValidatorException('Правила валидации неопределены. Сначала выполните setRules()');
         }
 
         foreach ($this->rules as $name => $rules) {
             $value = $fields[$name];
 
             if ($this->isNotExistsButRequired($value, $rules)) {
-                $this->errors[$name][] = 'Is Required';
+                $this->errors[$name][] = 'Обязательное поле';
                 continue;
             }
 
@@ -40,7 +42,7 @@ class Validator
 
             if ($this->isNull($value)) {
                 if ($this->cannotBeNull($value, $rules)) {
-                    $this->errors[$name][] = 'Cannot Be Null';
+                    $this->errors[$name][] = 'Не может быть пустым';
                 }
                 continue;
             }
@@ -48,20 +50,20 @@ class Validator
             if ($this->hasDefinedType($rules)) {
                 if ($rules['type'] === self::STRING) {
                     if ($this->isTooShort($value, $rules)) {
-                        $this->errors[$name][] = "Too Short. Minimum Length is {$rules['minLength']}";
+                        $this->errors[$name][] = "Слишком мало символов. Минимум {$rules['minLength']}";
                     } elseif ($this->isTooLong($value, $rules)) {
-                        $this->errors[$name][] = "Too Long. Maximum Length is {$rules['maxLength']}";
+                        $this->errors[$name][] = "Слишком много символов. Максимум {$rules['maxLength']}";
                     }
                 } elseif ($rules['type'] === self::INTEGER) {
                     if (!is_numeric($value)) {
-                        $this->errors[$name][] = "Must Be Numeric";
+                        $this->errors[$name][] = "Должно быть числом";
                     }
                 } elseif ($rules['type'] === self::DATE) {
                     if (!preg_match(self::DATE_REGEX, $value)) {
-                        $this->errors[$name][] = "Incorrect Date";
+                        $this->errors[$name][] = "Некорретная дата";
                     }
                 } else {
-                    $this->errors[$name][] = "Unknown Type";
+                    throw new ValidatorException(sprintf('Передан некорретный тип данных – %s: %s', $name, $rules['type']));
                 }
             }
 
