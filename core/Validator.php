@@ -7,7 +7,8 @@ class Validator
     const STRING = 'string';
     const INTEGER = 'integer';
     const DATE = 'date';
-    const DD_MM_YY_REGEX = '/^\s*(3[01]|[12][0-9]|0?[1-9])\.(1[012]|0?[1-9])\.((?:19|20)\d{2})\s*$/';
+    const DATE_REGEX =
+        '/^((?:19|20)\d{2})\-(1[012]|0[1-9])\-(3[01]|[12][0-9]|0[1-9]) ([0-1][0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9])$/';
 
     public $clean = [];
     public $errors = [];
@@ -46,7 +47,6 @@ class Validator
 
             if ($this->hasDefinedType($rules)) {
                 if ($rules['type'] === self::STRING) {
-                    $fields[$name] = trim(htmlspecialchars($value));
                     if ($this->isTooShort($value, $rules)) {
                         $this->errors[$name][] = "Too Short. Minimum Length is {$rules['minLength']}";
                     } elseif ($this->isTooLong($value, $rules)) {
@@ -55,11 +55,9 @@ class Validator
                 } elseif ($rules['type'] === self::INTEGER) {
                     if (!is_numeric($value)) {
                         $this->errors[$name][] = "Must Be Numeric";
-                    } else {
-                        $fields[$name] = (int) $value;
                     }
                 } elseif ($rules['type'] === self::DATE) {
-                    if (!preg_match(self::DD_MM_YY_REGEX, $value)) {
+                    if (!preg_match(self::DATE_REGEX, $value)) {
                         $this->errors[$name][] = "Incorrect Date";
                     }
                 } else {
@@ -68,7 +66,13 @@ class Validator
             }
 
             if (empty($this->errors[$name])) {
-                $this->clean[$name] = $value;
+                if ($rules['type'] === self::STRING) {
+                    $this->clean[$name] = trim(htmlspecialchars($value));
+                } elseif ($rules['type'] === self::INTEGER) {
+                    $this->clean[$name] = (int) $value;
+                } else {
+                    $this->clean[$name] = $value;
+                }
             }
         }
 

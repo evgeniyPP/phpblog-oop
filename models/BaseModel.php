@@ -51,6 +51,7 @@ abstract class BaseModel
             var_dump($this->validator->errors);
             throw new \Exception('Errors in the validation process'); # TODO error handling
         }
+        $props = $this->validator->clean;
 
         return $this->db->insert($this->table, $props);
     }
@@ -64,6 +65,12 @@ abstract class BaseModel
         if (!$this->validator->success) {
             throw new \Exception($this->validator->errors); # TODO error handling
         }
+        $props = array_filter(
+            $this->validator->clean,
+            function ($item) use ($id) {
+                return $item !== $id;
+            }
+        );
 
         return $this->db->update(
             $this->table,
