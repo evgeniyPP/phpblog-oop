@@ -28,33 +28,35 @@ class Validator
         foreach ($this->rules as $name => $rules) {
             $value = $fields[$name];
 
-            if (!isset($value) && isset($rules['required']) && $rules['required']) {
+            if ($this->isNotExistsButRequired($value, $rules)) {
                 $this->errors[$name][] = 'Is Required';
                 continue;
             }
 
-            if (!isset($value)) {
+            if ($this->isNotExists($value)) {
                 continue;
             }
 
-            if (trim($value) == null) {
-                if (!isset($rules['nullable']) || !$rules['nullable']) {
+            if ($this->isNull($value)) {
+                if ($this->cannotBeNull($value, $rules)) {
                     $this->errors[$name][] = 'Cannot Be Null';
                 }
                 continue;
             }
 
-            if (isset($rules['type'])) {
+            if ($this->hasDefinedType($rules)) {
                 if ($rules['type'] === self::STRING) {
                     $fields[$name] = trim(htmlspecialchars($value));
-                    if (isset($rules['minLength']) && strlen($value) < $rules['minLength']) {
+                    if ($this->isTooShort($value, $rules)) {
                         $this->errors[$name][] = "Too Short. Minimum Length is {$rules['minLength']}";
-                    } elseif (isset($rules['maxLength']) && strlen($value) > $rules['maxLength']) {
+                    } elseif ($this->isTooLong($value, $rules)) {
                         $this->errors[$name][] = "Too Long. Maximum Length is {$rules['maxLength']}";
                     }
                 } elseif ($rules['type'] === self::INTEGER) {
                     if (!is_numeric($value)) {
                         $this->errors[$name][] = "Must Be Numeric";
+                    } else {
+                        $fields[$name] = (int) $value;
                     }
                 } elseif ($rules['type'] === self::DATE) {
                     if (!preg_match(self::DD_MM_YY_REGEX, $value)) {
@@ -75,5 +77,61 @@ class Validator
         }
 
         return true;
+    }
+
+    private function isNotExistsButRequired($value, $rules)
+    {
+        if (!isset($value) && isset($rules['required']) && $rules['required']) {
+            return true;
+        }
+        return false;
+    }
+
+    private function isNotExists($value)
+    {
+        if (!isset($value)) {
+            return true;
+        }
+        return false;
+    }
+
+    private function isNull($value)
+    {
+        if (trim($value) == null) {
+            return true;
+        }
+        return false;
+    }
+
+    private function cannotBeNull($value, $rules)
+    {
+        if (!isset($rules['nullable']) || !$rules['nullable']) {
+            return true;
+        }
+        return false;
+    }
+
+    private function hasDefinedType($rules)
+    {
+        if (isset($rules['type'])) {
+            return true;
+        }
+        return false;
+    }
+
+    private function isTooShort($value, $rules)
+    {
+        if (isset($rules['minLength']) && mb_strlen($value) < $rules['minLength']) {
+            return true;
+        }
+        return false;
+    }
+
+    private function isTooLong($value, $rules)
+    {
+        if (isset($rules['maxLength']) && mb_strlen($value) > $rules['maxLength']) {
+            return true;
+        }
+        return false;
     }
 }
