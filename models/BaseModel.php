@@ -11,14 +11,12 @@ abstract class BaseModel
     protected $db;
     protected $validator;
     protected $table;
-    protected $key;
 
-    public function __construct(DBDriver $db, Validator $validator, string $table, string $key)
+    public function __construct(DBDriver $db, Validator $validator, string $table)
     {
         $this->db = $db;
         $this->validator = $validator;
         $this->table = $table;
-        $this->key = $key;
     }
 
     public function getAll()
@@ -30,7 +28,7 @@ abstract class BaseModel
     {
         return $this->db->selectOne(
             $this->table,
-            "$this->key = :id",
+            'id = :id',
             ['id' => $id]
         );
     }
@@ -39,7 +37,7 @@ abstract class BaseModel
     {
         return $this->db->delete(
             $this->table,
-            "$this->key = :id",
+            'id = :id',
             ['id' => $id]
         );
     }
@@ -77,7 +75,7 @@ abstract class BaseModel
         return $this->db->update(
             $this->table,
             $props,
-            "$this->key = :id",
+            'id = :id',
             ['id' => $id]
         );
     }

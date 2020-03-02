@@ -13,6 +13,7 @@
     </label>
     <div class="form__btns">
         <button type="submit" class="btns__submit">Войти</button>
-        <a href="<?=ROOT?>" class="btns__toindex">На главную</a></button>
+        <a href="<?=ROOT?>signup" class="btns__links">Зарегистрироваться</a></button>
+        <a href="<?=ROOT?>" class="btns__links">На главную</a></button>
     </div>
 </form>

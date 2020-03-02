@@ -8,7 +8,6 @@ use core\Validator;
 class UserModel extends BaseModel
 {
     const TABLE_NAME = 'users';
-    const PRIMARY_KEY = 'id_user';
 
     protected $schema = [
         'id' => [
@@ -25,7 +24,7 @@ class UserModel extends BaseModel
 
     public function __construct(\PDO $db, Validator $validator)
     {
-        parent::__construct($db, $validator, self::TABLE_NAME, self::PRIMARY_KEY);
+        parent::__construct($db, $validator, self::TABLE_NAME);
         $this->validator->setRules($this->schema);
     }
 }

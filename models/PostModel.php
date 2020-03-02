@@ -8,7 +8,6 @@ use core\Validator;
 class PostModel extends BaseModel
 {
     const TABLE_NAME = 'posts';
-    const PRIMARY_KEY = 'id_post';
 
     protected $schema = [
         'id' => [
@@ -31,7 +30,7 @@ class PostModel extends BaseModel
 
     public function __construct(DBDriver $db, Validator $validator)
     {
-        parent::__construct($db, $validator, self::TABLE_NAME, self::PRIMARY_KEY);
+        parent::__construct($db, $validator, self::TABLE_NAME);
         $this->validator->setRules($this->schema);
     }
 }
