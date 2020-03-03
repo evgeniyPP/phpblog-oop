@@ -3,10 +3,11 @@
     <div class="header__btns">
         <?if ($is_auth): ?>
         <a href="<?=ROOT?>post/add">Добавить пост</a>
+        <a href="<?=ROOT?>login/logout">Выйти</a>
         <?else: ?>
-        <a href="<?=ROOT?>signup">Зарегистрироваться</a>
+        <a href="<?=ROOT?>login">Войти / Зарегистрироваться</a>
         <?endif;?>
-        <a href="<?=ROOT?>login"><?=$log_btn?></a>
+
     </div>
 </header>
 <ul class="posts">

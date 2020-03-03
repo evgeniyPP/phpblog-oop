@@ -78,7 +78,7 @@ class Validator
             }
         }
 
-        if (count($this->clean) === count($fields)) {
+        if (count($this->errors) === 0) {
             $this->success = true;
         }
 

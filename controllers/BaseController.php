@@ -4,7 +4,6 @@ namespace controllers;
 
 use core\Exception\Error404Exception;
 use core\Request;
-use models\AuthModel;
 
 abstract class BaseController
 {
@@ -41,14 +40,6 @@ abstract class BaseController
                 'content' => $this->content,
             ]
         );
-    }
-
-    protected function secureRoute(string $returnUrl, string $rerouteUrl = 'login')
-    {
-        if (!AuthModel::checkAuth()) {
-            $_SESSION['return_url'] = $returnUrl;
-            $this->redirect($rerouteUrl);
-        }
     }
 
     protected function redirect(string $uri = '')

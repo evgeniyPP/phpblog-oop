@@ -33,6 +33,15 @@ abstract class BaseModel
         );
     }
 
+    public function getByUsername(string $login)
+    {
+        return $this->db->selectOne(
+            $this->table,
+            'login = :login',
+            ['login' => $login]
+        );
+    }
+
     public function deleteById(int $id)
     {
         return $this->db->delete(
@@ -42,15 +51,17 @@ abstract class BaseModel
         );
     }
 
-    public function add(array $props)
+    public function add(array $props, bool $needValidation = true)
     {
-        $this->validator->execute($props);
+        if ($needValidation) {
+            $this->validator->execute($props);
 
-        if (!$this->validator->success) {
-            throw new ValidatedDataException($this->validator->errors);
+            if (!$this->validator->success) {
+                throw new ValidatedDataException($this->validator->errors);
+            }
+
+            $props = $this->validator->clean;
         }
-
-        $props = $this->validator->clean;
 
         return $this->db->insert($this->table, $props);
     }

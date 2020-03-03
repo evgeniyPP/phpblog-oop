@@ -21,8 +21,8 @@ try {
         $controller = $mRouter->getController(
             [
                 'post' => 'Post',
-                'user' => 'User',
-                'login' => 'Login',
+                'login' => 'User',
+                'logout' => 'User',
             ]
         );
         $action = $mRouter->getAction();
@@ -39,6 +39,7 @@ try {
         header("HTTP/1.1 404 Not Found");
         $controller = sprintf('controllers\%sController', ERROR_404_CONTROLLER);
         $action = BASE_ACTION;
+        $request = new core\Request($_GET, $_POST, $_SERVER, $_COOKIE, $_FILES, $_SESSION);
         $controller = new $controller($request);
         $controller->$action();
     }

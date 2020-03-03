@@ -12,8 +12,8 @@
         Запомнить
     </label>
     <div class="form__btns">
-        <button type="submit" class="btns__submit">Войти</button>
-        <a href="<?=ROOT?>signup" class="btns__links">Зарегистрироваться</a></button>
-        <a href="<?=ROOT?>" class="btns__links">На главную</a></button>
+        <button type="submit" class="btns__submit" name="login_form_submit" value="login">Войти</button>
+        <button type="submit" class="btns__submit" name="login_form_submit" value="signup">Зарегистрироваться</button>
+        <a href="<?=ROOT?>" class="btns__links">На главную</a>
     </div>
 </form>

@@ -6,17 +6,17 @@ use core\DB;
 use core\DBDriver;
 use core\Exception\Error404Exception;
 use core\Exception\ValidatedDataException;
+use core\User;
 use core\Validator;
-use models\AuthModel;
 use models\PostModel;
+use models\UserModel;
 
 class PostController extends BaseController
 {
     public function index()
     {
         $mPost = new PostModel(new DBDriver(DB::getDBInstance()), new Validator());
-        $is_auth = AuthModel::checkAuth();
-        $log_btn = !$is_auth ? 'Войти' : 'Выйти';
+        $is_auth = $this->checkAuth();
         $posts = $mPost->getAll();
 
         $this->title = 'Блог на PHP';
@@ -26,7 +26,6 @@ class PostController extends BaseController
             [
                 'posts' => $posts,
                 'is_auth' => $is_auth,
-                'log_btn' => $log_btn,
             ]
         );
     }
@@ -35,7 +34,7 @@ class PostController extends BaseController
     {
         $id = $this->request->get('GET', 'id');
         $mPost = new PostModel(new DBDriver(DB::getDBInstance()), new Validator());
-        $is_auth = AuthModel::checkAuth();
+        $is_auth = $this->checkAuth();
         $post = $mPost->getById($id);
 
         if (!$post) {
@@ -130,5 +129,21 @@ class PostController extends BaseController
                 'content' => $post['content'] ?? $content,
             ]
         );
+    }
+
+    private function checkAuth()
+    {
+        $mUser = new UserModel(new DBDriver(DB::getDBInstance()), new Validator());
+        $user = new User($mUser, $this->request);
+
+        return $user->checkAuth();
+    }
+
+    private function secureRoute(string $returnUrl, string $rerouteUrl = 'login')
+    {
+        if (!$this->checkAuth()) {
+            $_SESSION['return_url'] = $returnUrl;
+            $this->redirect($rerouteUrl);
+        }
     }
 }
