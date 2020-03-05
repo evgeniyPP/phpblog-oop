@@ -3,16 +3,21 @@
 namespace core;
 
 use core\Request;
+use models\SessionModel;
 use models\UserModel;
 
 class User
 {
+    const NO_USERNAME = 'Аноним';
+
     private $mUser;
+    private $mSession;
     private $request;
 
-    public function __construct(UserModel $mUser, Request $request)
+    public function __construct(UserModel $mUser, SessionModel $mSession, Request $request)
     {
         $this->mUser = $mUser;
+        $this->mSession = $mSession;
         $this->request = $request;
     }
 
@@ -29,6 +34,13 @@ class User
         if ($user['isAuth']) {
             $_SESSION['is_auth'] = true;
             $_SESSION['login'] = $user['login'];
+
+            $sid = uniqid();
+            $this->mSession->add([
+                'id_user' => $user['id'],
+                'sid' => $sid,
+            ]);
+            $_SESSION['sid'] = $sid;
 
             if (isset($fields['remember'])) {
                 setcookie(
@@ -68,22 +80,31 @@ class User
 
     public function checkAuth()
     {
-        $isAuth = false;
+        $session = $this->request->get('SESSION', 'is_auth');
+        $sid = $this->request->get('SESSION', 'sid');
 
-        if ($this->request->get('SESSION', 'is_auth')) {
-            # TODO: check DBSession
+        if ($session && $sid) {
+            $user = $this->mSession->getBySid($sid);
+
+            $this->mSession->editById(
+                [
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                $user['id']
+            );
+
             $isAuth = true;
-            $username = $this->request->get('SESSION', 'login');
+            $username = $user['login'];
         } else {
             $isAuth = $this->checkCookie();
 
             if ($isAuth) {
-                $username = $this->request->get('COOKIE', 'login');
+                $username = $this->request->get('COOKIE', 'login') ?? self::NO_USERNAME;
             }
         }
 
         return [
-            'isAuth' => $isAuth,
+            'isAuth' => $isAuth ?? false,
             'username' => $username ?? null,
         ];
     }

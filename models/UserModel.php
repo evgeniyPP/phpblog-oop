@@ -39,6 +39,15 @@ class UserModel extends BaseModel
         $this->validator->setRules($this->schema);
     }
 
+    public function getByUsername(string $login)
+    {
+        return $this->db->selectOne(
+            $this->table,
+            'login = :login',
+            ['login' => $login]
+        );
+    }
+
     public function signUp(array $fields)
     {
         $this->validator->execute($fields);
@@ -84,6 +93,7 @@ class UserModel extends BaseModel
 
         return [
             'isAuth' => $isAuth,
+            'id' => $user['id'],
             'login' => $user['login'],
             'password' => $user['password'],
         ];

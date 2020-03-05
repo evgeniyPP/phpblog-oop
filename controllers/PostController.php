@@ -9,6 +9,7 @@ use core\Exception\ValidatorException;
 use core\User;
 use core\Validator;
 use models\PostModel;
+use models\SessionModel;
 use models\UserModel;
 
 class PostController extends BaseController
@@ -146,7 +147,8 @@ class PostController extends BaseController
     private function checkAuth()
     {
         $mUser = new UserModel(new DBDriver(DB::getDBInstance()), new Validator());
-        $user = new User($mUser, $this->request);
+        $mSession = new SessionModel(new DBDriver(DB::getDBInstance()), new Validator());
+        $user = new User($mUser, $mSession, $this->request);
 
         $auth = $user->checkAuth();
         $this->username = $auth['username'] ?? null;

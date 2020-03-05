@@ -9,6 +9,7 @@ use core\Exception\ValidatorException;
 use core\Request;
 use core\User;
 use core\Validator;
+use models\SessionModel;
 use models\UserModel;
 
 class UserController extends BaseController
@@ -21,7 +22,8 @@ class UserController extends BaseController
         parent::__construct($request);
 
         $mUser = new UserModel(new DBDriver(DB::getDBInstance()), new Validator());
-        $this->user = new User($mUser, $request);
+        $mSession = new SessionModel(new DBDriver(DB::getDBInstance()), new Validator());
+        $this->user = new User($mUser, $mSession, $request);
     }
 
     public function index()

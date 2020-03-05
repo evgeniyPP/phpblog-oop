@@ -81,6 +81,21 @@ class DBDriver
         return $this->pdo->lastInsertId();
     }
 
+    public function runSql(string $sql, array $props)
+    {
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($props);
+        $this->checkDBError($stmt);
+
+        $data = $stmt->fetch();
+
+        if (!$data) {
+            throw new DBException('Не найдено');
+        }
+
+        return $data;
+    }
+
     private function checkDBError($stmt)
     {
         $error = $stmt->errorInfo();

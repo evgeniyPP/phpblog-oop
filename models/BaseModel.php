@@ -33,15 +33,6 @@ abstract class BaseModel
         );
     }
 
-    public function getByUsername(string $login)
-    {
-        return $this->db->selectOne(
-            $this->table,
-            'login = :login',
-            ['login' => $login]
-        );
-    }
-
     public function deleteById(int $id)
     {
         return $this->db->delete(

@@ -40,6 +40,7 @@ try {
         $controller = sprintf('controllers\%sController', ERROR_404_CONTROLLER);
         $action = BASE_ACTION;
         $request = new core\Request($_GET, $_POST, $_SERVER, $_COOKIE, $_FILES, $_SESSION);
+
         $controller = new $controller($request);
         $controller->$action();
     }
