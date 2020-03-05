@@ -8,7 +8,7 @@ function __autoload($classname)
     include_once __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $classname) . '.php';
 }
 
-const ROOT = '/blog-oop/';
+const ROOT = '/';
 const DEV_MODE = true;
 const INDEX_DIR = __DIR__;
 const BASE_ACTION = 'index';
