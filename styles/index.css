@@ -21,3 +21,8 @@
   color: #000;
   transition: all 0.4s;
 }
+
+.username {
+  margin: 0;
+  padding: 0.5rem 1rem;
+}

@@ -59,7 +59,7 @@ class UserModel extends BaseModel
         }
     }
 
-    public function login(array $fields)
+    public function login(array $fields, bool $isHashed = false)
     {
         $this->validator->execute($fields);
 
@@ -76,7 +76,7 @@ class UserModel extends BaseModel
             throw new AuthException();
         }
 
-        $isAuth = $this->checkPassword($password, $user['password']);
+        $isAuth = $this->checkPassword($password, $user['password'], $isHashed);
 
         if (!$isAuth) {
             throw new AuthException();
@@ -89,11 +89,18 @@ class UserModel extends BaseModel
         ];
     }
 
-    public function checkPassword($pass, $hash)
+    public function checkPassword($pass, $hash, bool $isHashed = false)
     {
-        if ($this->generateHash($pass) === $hash) {
-            return true;
+        if ($isHashed) {
+            if ($pass === $hash) {
+                return true;
+            }
+        } else {
+            if ($this->generateHash($pass) === $hash) {
+                return true;
+            }
         }
+
         return false;
     }
 

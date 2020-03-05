@@ -13,6 +13,8 @@ use models\UserModel;
 
 class PostController extends BaseController
 {
+    private $username;
+
     public function index()
     {
         $mPost = new PostModel(new DBDriver(DB::getDBInstance()), new Validator());
@@ -26,6 +28,7 @@ class PostController extends BaseController
             [
                 'posts' => $posts,
                 'is_auth' => $is_auth,
+                'username' => $this->username ?? null,
             ]
         );
     }
@@ -145,7 +148,10 @@ class PostController extends BaseController
         $mUser = new UserModel(new DBDriver(DB::getDBInstance()), new Validator());
         $user = new User($mUser, $this->request);
 
-        return $user->checkAuth();
+        $auth = $user->checkAuth();
+        $this->username = $auth['username'] ?? null;
+
+        return $auth['isAuth'];
     }
 
     private function secureRoute(string $returnUrl, string $rerouteUrl = 'login')
