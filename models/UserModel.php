@@ -3,7 +3,9 @@
 namespace models;
 
 use core\DBDriver;
-use core\Exception\ValidatedDataException;
+use core\Exception\DBException;
+use core\Exception\NoAuthException;
+use core\Exception\ValidatorException;
 use core\Validator;
 
 class UserModel extends BaseModel
@@ -41,7 +43,7 @@ class UserModel extends BaseModel
         $this->validator->execute($fields);
 
         if (!$this->validator->success) {
-            throw new ValidatedDataException($this->validator->errors);
+            throw new ValidatorException($this->validator->errors);
         }
 
         $this->add([
@@ -57,15 +59,23 @@ class UserModel extends BaseModel
         $this->validator->execute($fields);
 
         if (!$this->validator->success) {
-            throw new ValidatedDataException($this->validator->errors);
+            throw new ValidatorException($this->validator->errors);
         }
 
         $login = $this->validator->clean['login'];
         $password = $this->validator->clean['password'];
 
-        $user = $this->getByUsername($login);
+        try {
+            $user = $this->getByUsername($login);
+        } catch (DBException $e) {
+            throw new NoAuthException();
+        }
 
         $isAuth = $this->checkPassword($password, $user['password']);
+
+        if (!$isAuth) {
+            throw new NoAuthException();
+        }
 
         return [
             'isAuth' => $isAuth,

@@ -48,8 +48,3 @@ button:active {
   color: #fff;
   transition: all 0.4s;
 }
-
-.error {
-  margin: 0.25rem 0;
-  color: red;
-}

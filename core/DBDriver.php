@@ -31,7 +31,13 @@ class DBDriver
         $stmt->execute($where_props);
         $this->checkDBError($stmt);
 
-        return $stmt->fetch();
+        $data = $stmt->fetch();
+
+        if (!$data) {
+            throw new DBException('Не найдено');
+        }
+
+        return $data;
     }
 
     public function delete(string $table, string $where, array $where_props)
@@ -79,7 +85,7 @@ class DBDriver
     {
         $error = $stmt->errorInfo();
         if ($error[0] != \PDO::ERR_NONE) {
-            throw new DBException("Database Error: $error[2]");
+            throw new DBException("Ошибка БД: $error[2]");
         }
     }
 }

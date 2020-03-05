@@ -84,8 +84,8 @@ class PostController extends BaseController
             __DIR__ . '/../views/add.html.php',
             [
                 'is_error' => boolval($errors) ?? false,
-                'title_errors' => $title_errors ?? null,
-                'content_errors' => $content_errors ?? null,
+                'title_errors' => $title_errors ?? [],
+                'content_errors' => $content_errors ?? [],
                 'title' => $title ?? '',
                 'content' => $content ?? '',
             ]
@@ -132,8 +132,8 @@ class PostController extends BaseController
             [
                 'id' => $id,
                 'is_error' => boolval($errors) ?? false,
-                'title_errors' => $title_errors ?? null,
-                'content_errors' => $content_errors ?? null,
+                'title_errors' => $title_errors ?? [],
+                'content_errors' => $content_errors ?? [],
                 'title' => $post['title'] ?? $title,
                 'content' => $post['content'] ?? $content,
             ]

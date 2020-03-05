@@ -4,6 +4,8 @@ namespace controllers;
 
 use core\DB;
 use core\DBDriver;
+use core\Exception\NoAuthException;
+use core\Exception\ValidatorException;
 use core\Request;
 use core\User;
 use core\Validator;
@@ -32,27 +34,31 @@ class UserController extends BaseController
         }
 
         if ($this->request->isPost()) {
+            try {
+                try {
+                    switch ($_REQUEST['login_form_submit']) {
+                        case 'login':
+                            $this->user->login($this->request->get('POST'));
 
-            switch ($_REQUEST['login_form_submit']) {
-                case 'login':
-                    $isAuth = $this->user->login($this->request->get('POST'));
+                            if ($hasReturnUrl) {
+                                unset($_SESSION['return_url']);
+                                $this->redirect($this->request->get('SESSION', 'return_url'));
+                            } else {
+                                $this->redirect();
+                            }
 
-                    if ($isAuth) {
-                        if ($hasReturnUrl) {
-                            unset($_SESSION['return_url']);
-                            $this->redirect($this->request->get('SESSION', 'return_url'));
-                        } else {
+                            break;
+                        case 'signup':
+                            $this->user->signUp($this->request->get('POST'));
                             $this->redirect();
-                        }
-                    } else {
-                        throw new \Exception('Неверные данные');
+                            break;
                     }
-
-                    break;
-                case 'signup':
-                    $this->user->signUp($this->request->get('POST'));
-                    $this->redirect();
-                    break;
+                } catch (ValidatorException $e) {
+                    $validationErrors = $e->getErrors();
+                    $loginErrors = $validationErrors['login'] ?? null;
+                    $passwordErrors = $validationErrors['password'] ?? null;
+                }} catch (NoAuthException $e) {
+                $noAuthError = $e->getMessage();
             }
         }
 
@@ -61,7 +67,10 @@ class UserController extends BaseController
         $this->content = $this->build(
             __DIR__ . '/../views/login.html.php',
             [
-                'error' => $this->error ?? null,
+                'no_auth_error' => $noAuthError ?? null,
+                'is_validation_errors' => boolval($validationErrors) ?? false,
+                'login_errors' => $loginErrors ?? [],
+                'password_errors' => $passwordErrors ?? [],
             ]
         );
     }
