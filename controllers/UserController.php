@@ -4,7 +4,7 @@ namespace controllers;
 
 use core\DB;
 use core\DBDriver;
-use core\Exception\NoAuthException;
+use core\Exception\AuthException;
 use core\Exception\ValidatorException;
 use core\Request;
 use core\User;
@@ -57,7 +57,7 @@ class UserController extends BaseController
                     $validationErrors = $e->getErrors();
                     $loginErrors = $validationErrors['login'] ?? null;
                     $passwordErrors = $validationErrors['password'] ?? null;
-                }} catch (NoAuthException $e) {
+                }} catch (AuthException $e) {
                 $noAuthError = $e->getMessage();
             }
         }

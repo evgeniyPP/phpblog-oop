@@ -3,8 +3,9 @@
 namespace models;
 
 use core\DBDriver;
+use core\Exception\AuthException;
 use core\Exception\DBException;
-use core\Exception\NoAuthException;
+use core\Exception\UsernameTakenException;
 use core\Exception\ValidatorException;
 use core\Validator;
 
@@ -46,12 +47,16 @@ class UserModel extends BaseModel
             throw new ValidatorException($this->validator->errors);
         }
 
-        $this->add([
-            'login' => $this->validator->clean['login'],
-            'password' => $this->generateHash($this->validator->clean['password']),
-        ],
-            false
-        );
+        try {
+            $this->add([
+                'login' => $this->validator->clean['login'],
+                'password' => $this->generateHash($this->validator->clean['password']),
+            ],
+                false
+            );
+        } catch (DBException $e) {
+            throw new AuthException('Такой пользователь уже существует');
+        }
     }
 
     public function login(array $fields)
@@ -68,13 +73,13 @@ class UserModel extends BaseModel
         try {
             $user = $this->getByUsername($login);
         } catch (DBException $e) {
-            throw new NoAuthException();
+            throw new AuthException();
         }
 
         $isAuth = $this->checkPassword($password, $user['password']);
 
         if (!$isAuth) {
-            throw new NoAuthException();
+            throw new AuthException();
         }
 
         return [
