@@ -2,8 +2,6 @@
 
 namespace core;
 
-use core\Exception\ValidatorException;
-
 class Validator
 {
     const STRING = 'string';
@@ -25,7 +23,7 @@ class Validator
     public function execute(array $fields)
     {
         if (!$this->rules) {
-            throw new ValidatorException('Правила валидации неопределены. Сначала выполните setRules()');
+            throw new \Exception('Правила валидации неопределены. Сначала выполните setRules()');
         }
 
         foreach ($this->rules as $name => $rules) {
@@ -63,7 +61,7 @@ class Validator
                         $this->errors[$name][] = "Некорретная дата";
                     }
                 } else {
-                    throw new ValidatorException(sprintf('Передан некорретный тип данных – %s: %s', $name, $rules['type']));
+                    throw new \Exception(sprintf('Передан некорретный тип данных – %s: %s', $name, $rules['type']));
                 }
             }
 

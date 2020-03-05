@@ -5,7 +5,7 @@ namespace controllers;
 use core\DB;
 use core\DBDriver;
 use core\Exception\Error404Exception;
-use core\Exception\ValidatedDataException;
+use core\Exception\ValidatorException;
 use core\User;
 use core\Validator;
 use models\PostModel;
@@ -71,7 +71,7 @@ class PostController extends BaseController
                     ]
                 );
                 $this->redirect("post/$id");
-            } catch (ValidatedDataException $e) {
+            } catch (ValidatorException $e) {
                 $errors = $e->getErrors();
                 $title_errors = $errors['title'] ?? null;
                 $content_errors = $errors['content'] ?? null;
@@ -108,14 +108,21 @@ class PostController extends BaseController
             $title = $this->request->get('POST', 'title');
             $content = $this->request->get('POST', 'content');
 
-            $mPost->editById(
-                [
-                    'title' => $title,
-                    'content' => $content,
-                ],
-                $id
-            );
-            $this->redirect("post/$id");
+            try {
+                $mPost->editById(
+                    [
+                        'title' => $title,
+                        'content' => $content,
+                    ],
+                    $id
+                );
+                $this->redirect("post/$id");
+            } catch (ValidatorException $e) {
+                $errors = $e->getErrors();
+                $title_errors = $errors['title'] ?? null;
+                $content_errors = $errors['content'] ?? null;
+            }
+
         }
 
         $this->title = 'Редактировать пост | Блог на PHP';
@@ -124,7 +131,9 @@ class PostController extends BaseController
             __DIR__ . '/../views/edit.html.php',
             [
                 'id' => $id,
-                'error' => $error ?? '',
+                'is_error' => boolval($errors) ?? false,
+                'title_errors' => $title_errors ?? null,
+                'content_errors' => $content_errors ?? null,
                 'title' => $post['title'] ?? $title,
                 'content' => $post['content'] ?? $content,
             ]

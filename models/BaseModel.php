@@ -3,7 +3,7 @@
 namespace models;
 
 use core\DBDriver;
-use core\Exception\ValidatedDataException;
+use core\Exception\ValidatorException;
 use core\Validator;
 
 abstract class BaseModel
@@ -57,7 +57,7 @@ abstract class BaseModel
             $this->validator->execute($props);
 
             if (!$this->validator->success) {
-                throw new ValidatedDataException($this->validator->errors);
+                throw new ValidatorException($this->validator->errors);
             }
 
             $props = $this->validator->clean;
@@ -73,7 +73,7 @@ abstract class BaseModel
         );
 
         if (!$this->validator->success) {
-            throw new ValidatedDataException($this->validator->errors);
+            throw new ValidatorException($this->validator->errors);
         }
 
         $props = array_filter(
