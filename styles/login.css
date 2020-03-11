@@ -15,9 +15,12 @@ form {
 
 form label {
   margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
 }
 
 form input {
+  margin-top: 1rem;
   margin-bottom: 1rem;
   padding: 0.5rem;
   font-weight: bold;

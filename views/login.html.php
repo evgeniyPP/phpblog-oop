@@ -1,4 +1,4 @@
-<form method="post">
+<form method=<?=$form->method();?>>
     <?if (isset($no_auth_error)): ?>
     <p class="error"><?=$no_auth_error?></p>
     <?endif;?>
@@ -10,15 +10,9 @@
     <p class="error"><?=$password_error?></p>
     <?endforeach;?>
     <?endif;?>
-    <label for="login">Логин</label>
-    <input type="text" name="login">
-    <label for="password">Пароль</label>
-    <input type="password" name="password">
-    <label class="remember">
-        <input type="checkbox" name="remember">
-        <span></span>
-        Запомнить
-    </label>
+    <?foreach ($form->fields() as $field): ?>
+    <?=$field?>
+    <?endforeach;?>
     <div class="form__btns">
         <button type="submit" class="btns__submit" name="login_form_submit" value="login">Войти</button>
         <button type="submit" class="btns__submit" name="login_form_submit" value="signup">Зарегистрироваться</button>

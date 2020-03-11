@@ -6,9 +6,11 @@ use core\DB;
 use core\DBDriver;
 use core\Exception\AuthException;
 use core\Exception\ValidatorException;
+use core\FormBuilder;
 use core\Request;
 use core\User;
 use core\Validator;
+use forms\AuthForm;
 use models\SessionModel;
 use models\UserModel;
 
@@ -64,11 +66,14 @@ class UserController extends BaseController
             }
         }
 
+        $authForm = new FormBuilder(new AuthForm);
+
         $this->title = 'Авторизация | Блог на PHP';
         $this->stylefile = 'login';
         $this->content = $this->build(
             __DIR__ . '/../views/login.html.php',
             [
+                'form' => $authForm,
                 'no_auth_error' => $noAuthError ?? null,
                 'is_validation_errors' => boolval($validationErrors) ?? false,
                 'login_errors' => $loginErrors ?? [],

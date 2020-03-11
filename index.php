@@ -10,9 +10,13 @@ function __autoload($classname)
 
 const ROOT = '/';
 const DEV_MODE = true;
+
 const INDEX_DIR = __DIR__;
 const BASE_ACTION = 'index';
 const ERROR_404_CONTROLLER = 'Error404';
+const METHOD_GET = 'get';
+const METHOD_POST = 'post';
+
 session_start();
 
 $mRouter = new RouterModel($_SERVER["REQUEST_URI"]);
