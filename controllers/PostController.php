@@ -2,15 +2,9 @@
 
 namespace controllers;
 
-use core\DB;
-use core\DBDriver;
 use core\Exception\Error404Exception;
 use core\Exception\ValidatorException;
 use core\User;
-use core\Validator;
-use models\PostModel;
-use models\SessionModel;
-use models\UserModel;
 
 class PostController extends BaseController
 {
@@ -18,7 +12,7 @@ class PostController extends BaseController
 
     public function index()
     {
-        $mPost = new PostModel(new DBDriver(DB::getDBInstance()), new Validator());
+        $mPost = $this->container->execute('postModel');
         $is_auth = $this->checkAuth();
         $posts = $mPost->getAll();
 
@@ -37,7 +31,7 @@ class PostController extends BaseController
     public function single()
     {
         $id = $this->request->get('GET', 'id');
-        $mPost = new PostModel(new DBDriver(DB::getDBInstance()), new Validator());
+        $mPost = $this->container->execute('postModel');
         $is_auth = $this->checkAuth();
         $post = $mPost->getById($id);
 
@@ -65,7 +59,7 @@ class PostController extends BaseController
             $title = $this->request->get('POST', 'title');
             $content = $this->request->get('POST', 'content');
 
-            $mPost = new PostModel(new DBDriver(DB::getDBInstance()), new Validator());
+            $mPost = $this->container->execute('postModel');
 
             try {
                 $id = $mPost->add(
@@ -101,7 +95,7 @@ class PostController extends BaseController
         $id = $this->request->get('GET', 'id');
         $this->secureRoute("post/edit/$id");
 
-        $mPost = new PostModel(new DBDriver(DB::getDBInstance()), new Validator());
+        $mPost = $this->container->execute('postModel');
 
         if ($this->request->isGet()) {
             $post = $mPost->getById($id);
@@ -146,10 +140,9 @@ class PostController extends BaseController
 
     private function checkAuth()
     {
-        $mUser = new UserModel(new DBDriver(DB::getDBInstance()), new Validator());
-        $mSession = new SessionModel(new DBDriver(DB::getDBInstance()), new Validator());
+        $mUser = $this->container->execute('userModel');
+        $mSession = $this->container->execute('sessionModel');
         $user = new User($mUser, $mSession, $this->request);
-
         $auth = $user->checkAuth();
         $this->username = $auth['username'] ?? null;
 

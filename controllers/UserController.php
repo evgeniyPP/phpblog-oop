@@ -2,29 +2,25 @@
 
 namespace controllers;
 
-use core\DB;
-use core\DBDriver;
+use core\DI\Container;
 use core\Exception\AuthException;
 use core\Exception\ValidatorException;
 use core\FormBuilder;
 use core\Request;
 use core\User;
-use core\Validator;
 use forms\AuthForm;
-use models\SessionModel;
-use models\UserModel;
 
 class UserController extends BaseController
 {
     private $error;
     private $user;
 
-    public function __construct(Request $request)
+    public function __construct(Container $container, Request $request)
     {
-        parent::__construct($request);
+        parent::__construct($container, $request);
 
-        $mUser = new UserModel(new DBDriver(DB::getDBInstance()), new Validator());
-        $mSession = new SessionModel(new DBDriver(DB::getDBInstance()), new Validator());
+        $mUser = $this->container->execute('userModel');
+        $mSession = $this->container->execute('sessionModel');
         $this->user = new User($mUser, $mSession, $request);
     }
 

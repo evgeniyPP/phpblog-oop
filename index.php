@@ -1,5 +1,10 @@
 <?php
 
+use core\DI\Container;
+use core\DI\PostModelBox;
+use core\DI\SessionModelBox;
+use core\DI\UserBox;
+use core\DI\UserModelBox;
 use core\Exception\Error404Exception;
 use models\RouterModel;
 
@@ -22,6 +27,11 @@ session_start();
 $mRouter = new RouterModel($_SERVER["REQUEST_URI"]);
 try {
     try {
+        $container = new Container();
+        $container->register(new PostModelBox($container));
+        $container->register(new UserModelBox($container));
+        $container->register(new SessionModelBox($container));
+
         $controller = $mRouter->getController(
             [
                 'post' => 'Post',
@@ -37,7 +47,7 @@ try {
         }
 
         $request = new core\Request($_GET, $_POST, $_SERVER, $_COOKIE, $_FILES, $_SESSION);
-        $controller = new $controller($request);
+        $controller = new $controller($container, $request);
         $controller->$action();
     } catch (Error404Exception $e) {
         header("HTTP/1.1 404 Not Found");
@@ -45,11 +55,11 @@ try {
         $action = BASE_ACTION;
         $request = new core\Request($_GET, $_POST, $_SERVER, $_COOKIE, $_FILES, $_SESSION);
 
-        $controller = new $controller($request);
+        $controller = new $controller($container, $request);
         $controller->$action();
     }
 } catch (\Exception $e) {
-    $controller = new $controller($request);
+    $controller = new $controller($container, $request);
     $controller->errorHandler($e->getMessage(), $e->getTraceAsString());
 }
 $controller->render();

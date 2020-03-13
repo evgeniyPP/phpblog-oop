@@ -2,6 +2,7 @@
 
 namespace controllers;
 
+use core\DI\Container;
 use core\Exception\Error404Exception;
 use core\Request;
 
@@ -11,9 +12,11 @@ abstract class BaseController
     protected $title;
     protected $stylefile;
     protected $content;
+    protected $container;
 
-    public function __construct(Request $request)
+    public function __construct(Container $container, Request $request)
     {
+        $this->container = $container;
         $this->request = $request;
     }
 
