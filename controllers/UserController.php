@@ -2,26 +2,18 @@
 
 namespace controllers;
 
-use core\DI\Container;
 use core\Exception\AuthException;
 use core\Exception\ValidatorException;
-use core\FormBuilder;
-use core\Request;
-use core\User;
-use forms\AuthForm;
 
 class UserController extends BaseController
 {
     private $error;
     private $user;
 
-    public function __construct(Container $container, Request $request)
+    public function __construct(\core\DI\Container $container, \core\Request $request)
     {
         parent::__construct($container, $request);
-
-        $mUser = $this->container->execute('userModel');
-        $mSession = $this->container->execute('sessionModel');
-        $this->user = new User($mUser, $mSession, $request);
+        $this->user = $this->container->execute('user', $request);
     }
 
     public function index()
@@ -55,15 +47,15 @@ class UserController extends BaseController
                     }
                 } catch (ValidatorException $e) {
                     $validationErrors = $e->getErrors();
-                    $loginErrors = $validationErrors['login'] ?? null;
-                    $passwordErrors = $validationErrors['password'] ?? null;
                 }} catch (AuthException $e) {
                 $noAuthError = $e->getMessage();
             }
         }
 
-        $authForm = new FormBuilder(
-            new AuthForm($validationErrors ?? null)
+        $form = $this->container->execute(
+            'form',
+            'Auth',
+            $validationErrors ?? null
         );
 
         $this->title = 'Авторизация | Блог на PHP';
@@ -71,7 +63,7 @@ class UserController extends BaseController
         $this->content = $this->build(
             __DIR__ . '/../views/login.html.php',
             [
-                'form' => $authForm,
+                'form' => $form,
                 'no_auth_error' => $noAuthError ?? null,
             ]
         );

@@ -1,10 +1,10 @@
 <?php
 
-namespace models;
+namespace core;
 
 use core\Exception\Error404Exception;
 
-class RouterModel
+class Router
 {
     const SINGLE_ACTION = 'single';
 

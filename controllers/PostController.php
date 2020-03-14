@@ -4,9 +4,6 @@ namespace controllers;
 
 use core\Exception\Error404Exception;
 use core\Exception\ValidatorException;
-use core\FormBuilder;
-use core\User;
-use forms\AddEditForm;
 
 class PostController extends BaseController
 {
@@ -14,7 +11,7 @@ class PostController extends BaseController
 
     public function index()
     {
-        $mPost = $this->container->execute('postModel');
+        $mPost = $this->container->execute('model', 'Post');
         $is_auth = $this->checkAuth();
         $posts = $mPost->getAll();
 
@@ -33,7 +30,7 @@ class PostController extends BaseController
     public function single()
     {
         $id = $this->request->get('GET', 'id');
-        $mPost = $this->container->execute('postModel');
+        $mPost = $this->container->execute('model', 'Post');
         $is_auth = $this->checkAuth();
         $post = $mPost->getById($id);
 
@@ -61,7 +58,7 @@ class PostController extends BaseController
             $title = $this->request->get('POST', 'title');
             $content = $this->request->get('POST', 'content');
 
-            $mPost = $this->container->execute('postModel');
+            $mPost = $this->container->execute('model', 'Post');
 
             try {
                 $id = $mPost->add(
@@ -76,11 +73,11 @@ class PostController extends BaseController
             }
         }
 
-        $form = new FormBuilder(
-            new AddEditForm(
-                ['title' => $title ?? '', 'content' => $content ?? ''],
-                $errors ?? null
-            )
+        $form = $this->container->execute(
+            'form',
+            'AddEdit',
+            ['title' => $title ?? '', 'content' => $content ?? ''],
+            $errors ?? null
         );
 
         $this->title = 'Добавить пост | Блог на PHP';
@@ -98,7 +95,7 @@ class PostController extends BaseController
         $id = $this->request->get('GET', 'id');
         $this->secureRoute("post/edit/$id");
 
-        $mPost = $this->container->execute('postModel');
+        $mPost = $this->container->execute('model', 'Post');
 
         if ($this->request->isGet()) {
             $post = $mPost->getById($id);
@@ -124,11 +121,11 @@ class PostController extends BaseController
 
         }
 
-        $form = new FormBuilder(
-            new AddEditForm(
-                ['title' => $post['title'] ?? $title, 'content' => $post['content'] ?? $content],
-                $errors ?? null
-            )
+        $form = $this->container->execute(
+            'form',
+            'AddEdit',
+            ['title' => $post['title'] ?? $title, 'content' => $post['content'] ?? $content],
+            $errors ?? null
         );
 
         $this->title = 'Редактировать пост | Блог на PHP';
@@ -144,10 +141,7 @@ class PostController extends BaseController
 
     private function checkAuth()
     {
-        $mUser = $this->container->execute('userModel');
-        $mSession = $this->container->execute('sessionModel');
-        $user = new User($mUser, $mSession, $this->request);
-        $auth = $user->checkAuth();
+        $auth = $this->container->execute('user', $this->request)->checkAuth();
         $this->username = $auth['username'] ?? null;
 
         return $auth['isAuth'];
