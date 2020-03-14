@@ -4,7 +4,9 @@ namespace controllers;
 
 use core\Exception\Error404Exception;
 use core\Exception\ValidatorException;
+use core\FormBuilder;
 use core\User;
+use forms\AddEditForm;
 
 class PostController extends BaseController
 {
@@ -71,21 +73,22 @@ class PostController extends BaseController
                 $this->redirect("post/$id");
             } catch (ValidatorException $e) {
                 $errors = $e->getErrors();
-                $title_errors = $errors['title'] ?? null;
-                $content_errors = $errors['content'] ?? null;
             }
         }
+
+        $form = new FormBuilder(
+            new AddEditForm(
+                ['title' => $title ?? '', 'content' => $content ?? ''],
+                $errors ?? null
+            )
+        );
 
         $this->title = 'Добавить пост | Блог на PHP';
         $this->stylefile = 'add-edit';
         $this->content = $this->build(
             __DIR__ . '/../views/add.html.php',
             [
-                'is_error' => boolval($errors) ?? false,
-                'title_errors' => $title_errors ?? [],
-                'content_errors' => $content_errors ?? [],
-                'title' => $title ?? '',
-                'content' => $content ?? '',
+                'form' => $form,
             ]
         );
     }
@@ -117,11 +120,16 @@ class PostController extends BaseController
                 $this->redirect("post/$id");
             } catch (ValidatorException $e) {
                 $errors = $e->getErrors();
-                $title_errors = $errors['title'] ?? null;
-                $content_errors = $errors['content'] ?? null;
             }
 
         }
+
+        $form = new FormBuilder(
+            new AddEditForm(
+                ['title' => $post['title'] ?? $title, 'content' => $post['content'] ?? $content],
+                $errors ?? null
+            )
+        );
 
         $this->title = 'Редактировать пост | Блог на PHP';
         $this->stylefile = 'add-edit';
@@ -129,11 +137,7 @@ class PostController extends BaseController
             __DIR__ . '/../views/edit.html.php',
             [
                 'id' => $id,
-                'is_error' => boolval($errors) ?? false,
-                'title_errors' => $title_errors ?? [],
-                'content_errors' => $content_errors ?? [],
-                'title' => $post['title'] ?? $title,
-                'content' => $post['content'] ?? $content,
+                'form' => $form,
             ]
         );
     }

@@ -8,6 +8,13 @@ form {
 
 form label {
   margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+form input,
+form textarea {
+  margin-top: 0.5rem;
 }
 
 .post__title {

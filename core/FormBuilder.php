@@ -21,15 +21,46 @@ class FormBuilder
         $inputs = [];
 
         foreach ($this->form->getFields() as $field) {
+            $isErrors = false;
+            $isLabel = false;
+            $isTextArea = false;
+
+            if (isset($field['errors'])) {
+                $errors = $field['errors'];
+                unset($field['errors']);
+                $isErrors = true;
+            }
+
             if (isset($field['label'])) {
                 $label = $field['label'];
-                $attributes = array_filter($field, function ($attr) {
-                    return $attr !== 'label';
-                });
-                $input = $this->input($attributes);
+                unset($field['label']);
+                $isLabel = true;
+            }
+
+            if ($field['type'] === 'textarea') {
+                unset($field['type']);
+                if (isset($field['value'])) {
+                    $value = $field['value'];
+                    unset($field['value']);
+                }
+                $isTextArea = true;
+            }
+
+            if ($isTextArea) {
+                $input = $this->textarea($field, $value ?? '');
+            } else {
+                $input = $this->input($field);
+            }
+
+            if ($isErrors) {
+                $errors = $this->errors($errors);
+                $input = $errors . $input;
+            }
+
+            if ($isLabel) {
                 $inputs[] = $this->label($label, $input);
             } else {
-                $inputs[] = $this->input($field);
+                $inputs[] = $input;
             }
         }
 
@@ -39,6 +70,20 @@ class FormBuilder
     private function input($attributes)
     {
         return sprintf('<input %s>', $this->attributes($attributes));
+    }
+
+    private function textarea($attributes, $value)
+    {
+        return sprintf('<textarea %s>%s</textarea>', $this->attributes($attributes), $value);
+    }
+
+    private function errors($errors)
+    {
+        $errorsElements = [];
+        foreach ($errors as $error) {
+            $errorsElements[] = sprintf('<p class="error">%s</p>', $error);
+        }
+        return implode('', $errorsElements);
     }
 
     private function label($label, $input)

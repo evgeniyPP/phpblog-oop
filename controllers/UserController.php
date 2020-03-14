@@ -62,7 +62,9 @@ class UserController extends BaseController
             }
         }
 
-        $authForm = new FormBuilder(new AuthForm);
+        $authForm = new FormBuilder(
+            new AuthForm($validationErrors ?? null)
+        );
 
         $this->title = 'Авторизация | Блог на PHP';
         $this->stylefile = 'login';
@@ -71,9 +73,6 @@ class UserController extends BaseController
             [
                 'form' => $authForm,
                 'no_auth_error' => $noAuthError ?? null,
-                'is_validation_errors' => boolval($validationErrors) ?? false,
-                'login_errors' => $loginErrors ?? [],
-                'password_errors' => $passwordErrors ?? [],
             ]
         );
     }

@@ -6,7 +6,7 @@ use core\Form;
 
 class AuthForm extends Form
 {
-    public function __construct()
+    public function __construct($errors)
     {
         $this->formName = 'auth';
         $this->method = \METHOD_POST;
@@ -15,6 +15,7 @@ class AuthForm extends Form
                 'name' => 'login',
                 'type' => 'text',
                 'placeholder' => 'Введите логин',
+                'errors' => $errors['login'] ?? null,
                 'label' => [
                     'value' => 'Логин',
                 ],
@@ -23,6 +24,7 @@ class AuthForm extends Form
                 'name' => 'password',
                 'type' => 'password',
                 'placeholder' => 'Введите пароль',
+                'errors' => $errors['password'] ?? null,
                 'label' => [
                     'value' => 'Пароль',
                 ],
